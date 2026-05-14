@@ -1,0 +1,185 @@
+"""
+Web采集器网站配置 v2.2 - 对所有失败企业启用Jina Reader
+更新时间：2026-03-29 v2.2 (激进方案)
+
+策略: 对成功的企业保留HTML采集，对失败的企业使用Jina Reader (use_jina_only=True)
+"""
+
+DEFAULT_SITES = [
+    # ===== 中游：主设备商（优先级P0）=====
+    {
+        "name": "华为",
+        "url": "https://www.huawei.com/cn/news",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .content li",
+        "title_selector": "h3, h2, h1, .title, a",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time",
+        "base_url": "https://www.huawei.com",
+        "priority": "P0",
+        "use_jina_only": False  # 成功的企业，保留HTML采集
+    },
+    {
+        "name": "中兴通讯",
+        "url": "https://www.zte.com.cn/chn/about/news",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .newslist li",
+        "title_selector": "h3, h2, h1, .title, a",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time",
+        "base_url": "https://www.zte.com.cn",
+        "priority": "P0",
+        "use_jina_only": False  # 成功的企业
+    },
+    {
+        "name": "爱立信",
+        "url": "https://www.ericsson.com/en/news",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .news-grid li",
+        "title_selector": "h3, h2, h1, .title, a, .news-title",
+        "link_selector": "a[href*='news'], a[href*='events'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time, .news-date",
+        "base_url": "https://www.ericsson.com",
+        "priority": "P0",
+        "use_jina_only": True  # 403 Blocked → 使用Jina Reader
+    },
+    {
+        "name": "诺基亚",
+        "url": "https://www.nokia.com/en/news",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .news-grid li",
+        "title_selector": "h3, h2, h1, .title, a, .news-title",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time, .news-date",
+        "base_url": "https://www.nokia.com",
+        "priority": "P0",
+        "use_jina_only": False  # 成功的企业
+    },
+    {
+        "name": "思科",
+        "url": "https://www.cisco.com/c/en/us/news/",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .news-container li",
+        "title_selector": "h3, h2, h1, .title, a, .news-title",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time, .news-date",
+        "base_url": "https://www.cisco.com",
+        "priority": "P0",
+        "use_jina_only": True  # 404 → 使用Jina Reader
+    },
+
+    # ===== 中游：其他设备商（优先级P1）=====
+    {
+        "name": "烽火通信",
+        "url": "https://www.fiberhome.com.cn/newslist",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .newslist li",
+        "title_selector": "h3, h2, h1, .title, a",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time",
+        "base_url": "https://www.fiberhome.com.cn",
+        "priority": "P1",
+        "use_jina_only": True  # ERROR → 使用Jina Reader
+    },
+    {
+        "name": "新华三",
+        "url": "https://www.h3c.com.cn/Home/News/",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .newslist li",
+        "title_selector": "h3, h2, h1, .title, a",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time",
+        "base_url": "https://www.h3c.com.cn",
+        "priority": "P1",
+        "use_jina_only": True  # ERROR → 使用Jina Reader
+    },
+    {
+        "name": "锐捷网络",
+        "url": "https://www.ruijie.com.cn/Home/News/",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .newslist li",
+        "title_selector": "h3, h2, h1, .title, a",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time",
+        "base_url": "https://www.ruijie.com.cn",
+        "priority": "P1",
+        "use_jina_only": True  # 404 → 使用Jina Reader
+    },
+
+    # ===== 上游：芯片与半导体（优先级P0）=====
+    {
+        "name": "高通",
+        "url": "https://www.qualcomm.com/news",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .news-container li",
+        "title_selector": "h3, h2, h1, .title, a, .news-title",
+        "link_selector": "a[href*='news'], a[href*='events'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time, .news-date",
+        "base_url": "https://www.qualcomm.com",
+        "priority": "P0",
+        "use_jina_only": False  # 成功的企业
+    },
+    {
+        "name": "博通",
+        "url": "https://www.broadcom.com/news-and-events",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .news-container li",
+        "title_selector": "h3, h2, h1, .title, a, .news-title",
+        "link_selector": "a[href*='news'], a[href*='events'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time, .news-date",
+        "base_url": "https://www.broadcom.com",
+        "priority": "P0",
+        "use_jina_only": True  # 404 → 使用Jina Reader
+    },
+
+    # ===== 上游：光通信（优先级P1）=====
+    {
+        "name": "中际旭创",
+        "url": "https://www.innolight.com.cn/News/",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .newslist li",
+        "title_selector": "h3, h2, h1, .title, a",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time",
+        "base_url": "https://www.innolight.com.cn",
+        "priority": "P1",
+        "use_jina_only": True  # ERROR → 使用Jina Reader
+    },
+
+    # ===== 下游：运营商（优先级P0）=====
+    {
+        "name": "中国移动",
+        "url": "https://www.10086.cn/about/news",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .newslist li",
+        "title_selector": "h3, h2, h1, .title, a",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time",
+        "base_url": "https://www.10086.cn",
+        "priority": "P0",
+        "use_jina_only": True  # 403 Blocked → 使用Jina Reader
+    },
+    {
+        "name": "中国电信",
+        "url": "https://www.chinatelecom.com.cn/news",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .newslist li",
+        "title_selector": "h3, h2, h1, .title, a",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time",
+        "base_url": "https://www.chinatelecom.com.cn",
+        "priority": "P0",
+        "use_jina_only": True  # 502 → 使用Jina Reader
+    },
+    {
+        "name": "中国联通",
+        "url": "https://www.chinaunicom.com.cn/news/",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .newslist li",
+        "title_selector": "h3, h2, h1, .title, a",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time",
+        "base_url": "https://www.chinaunicom.com.cn",
+        "priority": "P0",
+        "use_jina_only": True  # 404 → 使用Jina Reader
+    },
+
+    # ===== 下游：基础设施服务（优先级P2）=====
+    {
+        "name": "中国铁塔",
+        "url": "https://www.china-tower.com/news",
+        "list_selector": ".news-list .news-item, .news-item, .list-item li, article, .newslist li",
+        "title_selector": "h3, h2, h1, .title, a",
+        "link_selector": "a[href*='news'], a[href*='press'], a[href], a",
+        "date_selector": ".date, .time, .publish-date, time",
+        "base_url": "https://www.china-tower.com",
+        "priority": "P2",
+        "use_jina_only": True  # 400 → 使用Jina Reader
+    },
+]

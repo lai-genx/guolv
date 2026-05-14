@@ -1,0 +1,33 @@
+supply_chain_structure:
+  chips:
+    order: 1
+    display_name: 芯片与半导体
+    description: 基带芯片、射频前端、交换芯片、FPGA、SoC及关键半导体器件。
+  optical_modules:
+    order: 2
+    display_name: 光通信器件与模块
+    description: 光芯片、光模块、硅光、激光器、探测器、DSP及高速互连器件。
+  wireless_access:
+    order: 3
+    display_name: 无线接入设备
+    description: 基站、天线、射频单元、小基站、Open RAN、vRAN及无线接入系统。
+  optical_transport_access:
+    order: 4
+    display_name: 光传输与接入
+    description: OTN、DWDM、PON、FTTR、光传输设备、接入网设备及承载网络。
+  core_network_data_center:
+    order: 5
+    display_name: 核心网与数据中心
+    description: 5GC、MEC、云原生核心网、交换路由、数据中心网络及算力网络。
+  iot_terminal:
+    order: 6
+    display_name: 物联网与终端
+    description: 通信模组、车联网终端、工业互联网终端、消费终端和边缘设备。
+  operator_infrastructure:
+    order: 7
+    display_name: 电信运营与基础设施
+    description: 运营商网络建设、招投标、频谱、基础设施部署和行业应用落地。
+  other:
+    order: 99
+    display_name: 其他
+    description: 暂无法归入上述环节的产业情报。

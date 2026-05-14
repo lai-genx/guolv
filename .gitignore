@@ -1,0 +1,44 @@
+# Secrets and local environment
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# Local runtime data
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+data/*.log
+data/reports/
+data/plans/
+knowledge_base/chroma_db/
+knowledge_base/episodic_memory/
+
+# Downloaded installers and local tools
+python-installer.exe
+python-install.log
+gh-installer.msi
+gh-install.log
+gh.zip
+_tools/
+_temp/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Test/output artifacts
+test_jina_output.txt

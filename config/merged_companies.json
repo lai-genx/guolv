@@ -1,0 +1,691 @@
+[
+  {
+    "name": "华为海思",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "紫光展锐",
+    "chain": "芯片与半导体",
+    "url": "https://www.unisoc.com/"
+  },
+  {
+    "name": "翱捷科技",
+    "chain": "芯片与半导体",
+    "url": "https://www.asrmicro.com/"
+  },
+  {
+    "name": "移芯通信",
+    "chain": "芯片与半导体",
+    "url": "https://www.xtechcomm.com/"
+  },
+  {
+    "name": "展讯",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "全志科技",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "瑞芯微电子",
+    "chain": "芯片与半导体",
+    "url": "https://www.rock-chips.com/"
+  },
+  {
+    "name": "联芯科技",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "珠海炬力",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "中星微",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "唯捷创芯",
+    "chain": "芯片与半导体",
+    "url": "http://www.wayjem.com/"
+  },
+  {
+    "name": "中科汉天下",
+    "chain": "芯片与半导体",
+    "url": "http://www.hexintek.com/"
+  },
+  {
+    "name": "卓胜微",
+    "chain": "芯片与半导体",
+    "url": "https://www.zhuoshengwei.com/"
+  },
+  {
+    "name": "慧智微",
+    "chain": "芯片与半导体",
+    "url": "https://www.microintelli.com/"
+  },
+  {
+    "name": "博通集成",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "上海艾为",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "圣邦微",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "格科微电子",
+    "chain": "芯片与半导体",
+    "url": "https://www.gcoreinc.com/"
+  },
+  {
+    "name": "汇顶科技",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "思立微",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "集创北方",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "光迅科技",
+    "chain": "芯片与半导体",
+    "url": "https://www.accelink.com/"
+  },
+  {
+    "name": "源杰科技",
+    "chain": "芯片与半导体",
+    "url": "https://www.synlighttech.com/"
+  },
+  {
+    "name": "仕佳光子",
+    "chain": "芯片与半导体",
+    "url": "https://www.shijiaphotonics.com/"
+  },
+  {
+    "name": "美新半导体",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "苏州敏芯",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "矽睿半导体",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "思比科",
+    "chain": "芯片与半导体",
+    "url": "https://www.siliconimage.com.cn/"
+  },
+  {
+    "name": "高通",
+    "chain": "芯片与半导体"
+  },
+  {
+    "name": "联发科",
+    "chain": "芯片与半导体",
+    "url": "https://www.mediatek.com/"
+  },
+  {
+    "name": "三星LSI",
+    "chain": "芯片与半导体",
+    "url": "https://semiconductor.samsung.com/"
+  },
+  {
+    "name": "英特尔",
+    "chain": "芯片与半导体",
+    "url": "https://www.intel.com/"
+  },
+  {
+    "name": "Coherent",
+    "chain": "芯片与半导体",
+    "url": "https://www.coherent.com/"
+  },
+  {
+    "name": "Lumentum",
+    "chain": "芯片与半导体",
+    "url": "https://www.lumentum.com/"
+  },
+  {
+    "name": "Broadcom",
+    "chain": "芯片与半导体",
+    "url": "https://www.broadcom.com/"
+  },
+  {
+    "name": "德州仪器",
+    "chain": "芯片与半导体",
+    "url": "https://www.ti.com/"
+  },
+  {
+    "name": "中际旭创",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "新易盛",
+    "chain": "光通信器件与模块",
+    "url": "https://www.eoptolink.com/"
+  },
+  {
+    "name": "光迅科技",
+    "chain": "光通信器件与模块",
+    "url": "https://www.accelink.com/"
+  },
+  {
+    "name": "华工正源",
+    "chain": "光通信器件与模块",
+    "url": "https://www.hgzy.com.cn/"
+  },
+  {
+    "name": "海信宽带",
+    "chain": "光通信器件与模块",
+    "url": "https://www.hisense-broadband.com/"
+  },
+  {
+    "name": "索尔思光电",
+    "chain": "光通信器件与模块",
+    "url": "https://www.sourcephotonics.com/"
+  },
+  {
+    "name": "天孚通信",
+    "chain": "光通信器件与模块",
+    "url": "https://www.turfib.com/"
+  },
+  {
+    "name": "特发信息",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "华工科技",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "共进股份",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "通鼎互联",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "天邑股份",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "全信股份",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "太辰光",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "博创科技",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "锐科激光",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "光库科技",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "理工光科",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "汇源通信",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "昂纳",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "鸿辉光通",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "润建通信",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "三环集团",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "Coherent",
+    "chain": "光通信器件与模块",
+    "url": "https://www.coherent.com/"
+  },
+  {
+    "name": "思科",
+    "chain": "光通信器件与模块"
+  },
+  {
+    "name": "英特尔",
+    "chain": "光通信器件与模块",
+    "url": "https://www.intel.com/"
+  },
+  {
+    "name": "华为",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "中兴通讯",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "烽火通信",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "通宇通讯",
+    "chain": "无线接入设备",
+    "url": "https://www.tytx.com.cn/"
+  },
+  {
+    "name": "京信通信",
+    "chain": "无线接入设备",
+    "url": "https://www.comba.net.cn/"
+  },
+  {
+    "name": "摩比发展",
+    "chain": "无线接入设备",
+    "url": "https://www.mobie.com.cn/"
+  },
+  {
+    "name": "盛路通信",
+    "chain": "无线接入设备",
+    "url": "https://www.shenglu.com/"
+  },
+  {
+    "name": "武汉凡谷",
+    "chain": "无线接入设备",
+    "url": "https://www.fangu.com/"
+  },
+  {
+    "name": "大富科技",
+    "chain": "无线接入设备",
+    "url": "https://www.tuftiem.com/"
+  },
+  {
+    "name": "东山精密",
+    "chain": "无线接入设备",
+    "url": "https://www.dongsheng.com/"
+  },
+  {
+    "name": "信维通信",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "金信诺",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "吴通控股",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "硕贝德",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "春兴精工",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "欣天科技",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "麦捷科技",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "风华高科",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "鸿博股份",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "中航光电",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "西安华达",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "中电科55所",
+    "chain": "无线接入设备",
+    "url": "https://www.cetc55.com/"
+  },
+  {
+    "name": "合众思壮",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "北斗星通",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "振芯科技",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "爱立信",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "诺基亚",
+    "chain": "无线接入设备"
+  },
+  {
+    "name": "康普通讯",
+    "chain": "无线接入设备",
+    "url": "https://www.commscope.com/"
+  },
+  {
+    "name": "凯士林",
+    "chain": "无线接入设备",
+    "url": "https://www.kathrein.com/"
+  },
+  {
+    "name": "RFS",
+    "chain": "无线接入设备",
+    "url": "https://www.rfsworld.com/"
+  },
+  {
+    "name": "三星电子",
+    "chain": "无线接入设备",
+    "url": "https://www.samsung.com/"
+  },
+  {
+    "name": "Mavenir",
+    "chain": "无线接入设备",
+    "url": "https://www.mavenir.com/"
+  },
+  {
+    "name": "华为",
+    "chain": "光传输与接入"
+  },
+  {
+    "name": "中兴通讯",
+    "chain": "光传输与接入"
+  },
+  {
+    "name": "烽火通信",
+    "chain": "光传输与接入"
+  },
+  {
+    "name": "长飞光纤",
+    "chain": "光传输与接入",
+    "url": "https://www.yofc.com/"
+  },
+  {
+    "name": "中天科技",
+    "chain": "光传输与接入",
+    "url": "https://www.zhongtiantech.com/"
+  },
+  {
+    "name": "亨通光电",
+    "chain": "光传输与接入",
+    "url": "https://www.hengtonggroup.com/"
+  },
+  {
+    "name": "新华三",
+    "chain": "光传输与接入"
+  },
+  {
+    "name": "锐捷网络",
+    "chain": "光传输与接入"
+  },
+  {
+    "name": "诺基亚",
+    "chain": "光传输与接入"
+  },
+  {
+    "name": "爱立信",
+    "chain": "光传输与接入"
+  },
+  {
+    "name": "Ciena",
+    "chain": "光传输与接入",
+    "url": "https://www.ciena.com/"
+  },
+  {
+    "name": "Infinera",
+    "chain": "光传输与接入",
+    "url": "https://www.infinera.com/"
+  },
+  {
+    "name": "Calix",
+    "chain": "光传输与接入",
+    "url": "https://www.calix.com/"
+  },
+  {
+    "name": "ADTRAN",
+    "chain": "光传输与接入",
+    "url": "https://www.adtran.com/"
+  },
+  {
+    "name": "DZS",
+    "chain": "光传输与接入",
+    "url": "https://www.dzsi.com/"
+  },
+  {
+    "name": "华为",
+    "chain": "核心网与数据中心"
+  },
+  {
+    "name": "中兴通讯",
+    "chain": "核心网与数据中心"
+  },
+  {
+    "name": "新华三",
+    "chain": "核心网与数据中心"
+  },
+  {
+    "name": "锐捷网络",
+    "chain": "核心网与数据中心"
+  },
+  {
+    "name": "星网锐捷",
+    "chain": "核心网与数据中心",
+    "url": "https://www.star-net.com.cn/"
+  },
+  {
+    "name": "思科",
+    "chain": "核心网与数据中心"
+  },
+  {
+    "name": "爱立信",
+    "chain": "核心网与数据中心"
+  },
+  {
+    "name": "诺基亚",
+    "chain": "核心网与数据中心"
+  },
+  {
+    "name": "Juniper",
+    "chain": "核心网与数据中心",
+    "url": "https://www.juniper.net/"
+  },
+  {
+    "name": "Arista Networks",
+    "chain": "核心网与数据中心",
+    "url": "https://www.arista.com/"
+  },
+  {
+    "name": "NEC",
+    "chain": "核心网与数据中心",
+    "url": "https://www.nec.com/"
+  },
+  {
+    "name": "富士通",
+    "chain": "核心网与数据中心",
+    "url": "https://www.fujitsu.com/"
+  },
+  {
+    "name": "移远通信",
+    "chain": "物联网与终端",
+    "url": "https://www.quectel.com/"
+  },
+  {
+    "name": "广和通",
+    "chain": "物联网与终端",
+    "url": "https://www.fibocom.com/"
+  },
+  {
+    "name": "日海智能",
+    "chain": "物联网与终端",
+    "url": "https://www.suntek.com.cn/"
+  },
+  {
+    "name": "美格智能",
+    "chain": "物联网与终端",
+    "url": "https://www.meigsmart.com/"
+  },
+  {
+    "name": "有方科技",
+    "chain": "物联网与终端",
+    "url": "https://www.thingclo.com/"
+  },
+  {
+    "name": "高新兴",
+    "chain": "物联网与终端",
+    "url": "https://www.gosuncn.com/"
+  },
+  {
+    "name": "芯讯通",
+    "chain": "物联网与终端",
+    "url": "https://www.simcom.com/"
+  },
+  {
+    "name": "富士康",
+    "chain": "物联网与终端",
+    "url": "https://www.foxconn.com/"
+  },
+  {
+    "name": "闻泰科技",
+    "chain": "物联网与终端",
+    "url": "https://www.wingtech.com/"
+  },
+  {
+    "name": "华勤技术",
+    "chain": "物联网与终端",
+    "url": "https://www.huaqin.com/"
+  },
+  {
+    "name": "龙旗科技",
+    "chain": "物联网与终端",
+    "url": "https://www.longqi.com/"
+  },
+  {
+    "name": "Sierra Wireless",
+    "chain": "物联网与终端",
+    "url": "https://www.sierrawireless.com/"
+  },
+  {
+    "name": "泰利特",
+    "chain": "物联网与终端",
+    "url": "https://www.telit.com/"
+  },
+  {
+    "name": "u-blox",
+    "chain": "物联网与终端",
+    "url": "https://www.u-blox.com/"
+  },
+  {
+    "name": "Apple",
+    "chain": "物联网与终端",
+    "url": "https://www.apple.com/"
+  },
+  {
+    "name": "三星电子",
+    "chain": "物联网与终端",
+    "url": "https://www.samsung.com/"
+  },
+  {
+    "name": "中国移动",
+    "chain": "电信运营与基础设施"
+  },
+  {
+    "name": "中国电信",
+    "chain": "电信运营与基础设施"
+  },
+  {
+    "name": "中国联通",
+    "chain": "电信运营与基础设施"
+  },
+  {
+    "name": "中国广电",
+    "chain": "电信运营与基础设施",
+    "url": "https://www.cbn.cn/"
+  },
+  {
+    "name": "中国铁塔",
+    "chain": "电信运营与基础设施"
+  },
+  {
+    "name": "中国通信服务",
+    "chain": "电信运营与基础设施",
+    "url": "https://www.chinaccs.com.hk/"
+  },
+  {
+    "name": "Verizon",
+    "chain": "电信运营与基础设施",
+    "url": "https://www.verizon.com/"
+  },
+  {
+    "name": "AT&T",
+    "chain": "电信运营与基础设施",
+    "url": "https://www.att.com/"
+  },
+  {
+    "name": "T-Mobile",
+    "chain": "电信运营与基础设施",
+    "url": "https://www.t-mobile.com/"
+  },
+  {
+    "name": "德国电信",
+    "chain": "电信运营与基础设施",
+    "url": "https://www.telekom.com/"
+  },
+  {
+    "name": "沃达丰",
+    "chain": "电信运营与基础设施",
+    "url": "https://www.vodafone.com/"
+  },
+  {
+    "name": "Orange",
+    "chain": "电信运营与基础设施",
+    "url": "https://www.orange.com/"
+  },
+  {
+    "name": "NTT DoCoMo",
+    "chain": "电信运营与基础设施",
+    "url": "https://www.nttdocomo.co.jp/"
+  },
+  {
+    "name": "软银",
+    "chain": "电信运营与基础设施",
+    "url": "https://www.softbank.jp/"
+  },
+  {
+    "name": "SK电讯",
+    "chain": "电信运营与基础设施",
+    "url": "https://www.sktelecom.com/"
+  }
+]

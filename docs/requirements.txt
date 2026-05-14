@@ -1,0 +1,34 @@
+# CT产业情报Agent - 依赖包
+
+# 核心依赖
+httpx>=0.27.0
+brotli>=1.1.0
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+pyyaml>=6.0.1
+
+# 数据库 (Python 3 内置 sqlite3，无需安装)
+
+# AI/ML
+sentence-transformers>=2.5.0
+transformers>=4.38.0
+numpy>=1.26.0
+
+# 配置管理
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
+python-dotenv>=1.0.0
+
+# 日志
+loguru>=0.7.2
+
+# 调度
+apscheduler>=3.10.4
+
+# 可选: 向量化数据库 (如果需要更高级的向量检索)
+# chromadb>=0.4.0
+
+# 开发依赖 (可选)
+# pytest>=8.0.0
+# black>=24.0.0
+# flake8>=7.0.0
