@@ -33,6 +33,7 @@ gh-install.log
 gh.zip
 _tools/
 _temp/
+output/
 
 # OS/editor
 .DS_Store
