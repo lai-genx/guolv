@@ -6,6 +6,7 @@ from .rss_collector import RSSCollector
 from .web_collector import WebCollector
 from .search_collector import SearchCollector
 from .patent_collector import PatentCollector
+from .vvihot_collector import VviHotCollector
 
 __all__ = [
     'BaseCollector',
@@ -14,4 +15,5 @@ __all__ = [
     'WebCollector',
     'SearchCollector',
     'PatentCollector',
+    'VviHotCollector',
 ]

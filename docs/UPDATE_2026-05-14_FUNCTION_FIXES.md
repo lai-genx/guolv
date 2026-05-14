@@ -470,3 +470,29 @@ LLM__DEEPSEEK_API_KEY=你的key
 python main.py --collect
 python main.py --report
 ```
+
+## 2026-05-14 识微商情/VviHot采集器接入
+
+### 新增能力
+
+- 新增 `collectors/vvihot_collector.py`。
+- 支持登录识微商情平台并采集已配置监测主题下的文章。
+- 平台文章会统一转换为 `RawIntelData`，复用现有 LLM 分析、去重、入库和周报流程。
+- 启用 `COLLECTOR__ENABLE_VVIHOT=true` 后，主流程会使用 `VviHotCollector` 替代原来的 `SearchCollector`，避免重复跑 Bing 搜索。
+
+### 新增配置
+
+```env
+COLLECTOR__ENABLE_VVIHOT=true
+COLLECTOR__VVIHOT_URL=https://zreywc.vvihot.com/swsq/
+COLLECTOR__VVIHOT_USERNAME=
+COLLECTOR__VVIHOT_PASSWORD=
+COLLECTOR__VVIHOT_HEADLESS=true
+COLLECTOR__VVIHOT_WAIT_SECONDS=12
+COLLECTOR__VVIHOT_MAX_ITEMS=80
+COLLECTOR__VVIHOT_TOPIC_NAMES=
+```
+
+### 文档
+
+- 新增 `docs/VVIHOT_COLLECTOR_INTEGRATION.md`，说明平台字段映射、替代范围、主题组合建议和使用注意事项。

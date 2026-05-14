@@ -51,6 +51,14 @@ class CollectorSettings(BaseSettings):
 
     enable_search: bool = Field(default=True, description="是否启用搜索引擎采集")
     enable_patent: bool = Field(default=True, description="是否启用专利线索采集")
+    enable_vvihot: bool = Field(default=False, description="是否启用识微商情/VviHot平台采集")
+    vvihot_url: str = Field(default="https://zreywc.vvihot.com/swsq/", description="识微商情平台地址")
+    vvihot_username: str = Field(default="", description="识微商情账号")
+    vvihot_password: str = Field(default="", description="识微商情密码")
+    vvihot_headless: bool = Field(default=True, description="是否以无头浏览器运行识微商情采集")
+    vvihot_wait_seconds: int = Field(default=12, description="登录后等待平台主题数据加载秒数")
+    vvihot_max_items: int = Field(default=80, description="识微商情单轮最多采集条数")
+    vvihot_topic_names: str = Field(default="", description="识微商情主题名白名单，逗号分隔，留空表示全部")
     
     request_timeout: int = Field(default=60, description="请求超时时间(秒)")
     max_retries: int = Field(default=5, description="最大重试次数")
