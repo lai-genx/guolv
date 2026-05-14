@@ -97,6 +97,13 @@ class VviHotCollector(BaseCollector):
                 await page.goto(self.platform_url, wait_until="networkidle", timeout=60000)
                 await self._login_if_needed(page)
 
+                # 先主动读取主题列表，随后触发一次页面监测刷新。
+                topics_payload = await self._fetch_topics(page)
+                if topics_payload:
+                    topic_lookup.update(self._extract_topic_lookup(topics_payload))
+
+                await self._trigger_topic_refresh(page, topic_lookup)
+
                 # 平台主题数据异步加载，等待前端触发 pagingSummary 接口。
                 await page.wait_for_timeout(max(1, self.wait_seconds) * 1000)
 
@@ -143,6 +150,39 @@ class VviHotCollector(BaseCollector):
             await page.keyboard.press("Enter")
 
         await page.wait_for_load_state("networkidle", timeout=60000)
+
+    async def _fetch_topics(self, page) -> Optional[Dict[str, Any]]:
+        """直接读取平台主题列表，避免只依赖前端初始化事件"""
+        try:
+            return await page.evaluate(
+                """async () => {
+                    const r = await fetch('/swsq/topic/pagingByType?topicType=KEYWORDS', {
+                        credentials: 'include'
+                    });
+                    return await r.json();
+                }"""
+            )
+        except Exception as e:
+            logger.debug(f"读取VviHot主题列表失败: {e}")
+            return None
+
+    async def _trigger_topic_refresh(self, page, topic_lookup: Dict[str, str]) -> None:
+        """
+        触发平台前端刷新主题文章。
+
+        识微商情的桌面看板会在用户点击“监测”后异步加载各主题的 pagingSummary
+        接口；无头浏览器首次进入时该接口有时不会自动触发，因此这里模拟一次轻量
+        的监测操作。若主题已存在或数量超限，平台会返回错误，但仍会刷新看板数据。
+        """
+        try:
+            keyword = next((name for name in topic_lookup.values() if name), "5G")
+            await page.mouse.click(240, 25)
+            await page.keyboard.press("Control+A")
+            await page.keyboard.type(keyword)
+            await page.mouse.click(720, 25)
+            await page.wait_for_timeout(2000)
+        except Exception as e:
+            logger.debug(f"触发VviHot主题刷新失败: {e}")
 
     async def _safe_json_response(self, response) -> Optional[Dict[str, Any]]:
         try:
