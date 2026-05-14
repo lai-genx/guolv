@@ -243,7 +243,7 @@ class VviHotCollector(BaseCollector):
 
         topic_id = self._extract_topic_id(doc)
         topic_name = doc.get("_vvihot_topic_name") or (topic_lookup.get(topic_id, "") if topic_id else "")
-        if self.topic_names and topic_name and topic_name not in self.topic_names:
+        if self.topic_names and topic_name not in self.topic_names:
             return None
 
         source = doc.get("websiteName") or doc.get("domain") or "识微商情"
