@@ -12,7 +12,7 @@ import smtplib
 import httpx
 from loguru import logger
 
-from config import settings
+from config import DistributionSettings, settings
 from models import WeeklyReport
 
 
@@ -20,13 +20,18 @@ class EmailSender:
     """邮件发送器"""
     
     def __init__(self):
-        self.smtp_server = settings.distribution.smtp_server
-        self.smtp_port = settings.distribution.smtp_port
-        self.smtp_user = settings.distribution.smtp_user
-        self.smtp_password = settings.distribution.smtp_password
-        self.use_tls = settings.distribution.smtp_use_tls
-        self.sender = settings.distribution.email_sender or self.smtp_user
-        self.recipients = settings.distribution.email_recipients_list
+        self.refresh_config()
+
+    def refresh_config(self):
+        """每次发送前重新读取 .env，避免网页保存配置后必须重启。"""
+        cfg = DistributionSettings()
+        self.smtp_server = cfg.smtp_server
+        self.smtp_port = cfg.smtp_port
+        self.smtp_user = cfg.smtp_user
+        self.smtp_password = cfg.smtp_password
+        self.use_tls = cfg.smtp_use_tls
+        self.sender = cfg.email_sender or self.smtp_user
+        self.recipients = cfg.email_recipients_list
     
     def is_configured(self) -> bool:
         """检查是否已配置"""
@@ -47,6 +52,7 @@ class EmailSender:
         Returns:
             是否发送成功
         """
+        self.refresh_config()
         if not self.is_configured():
             logger.warning("邮件未配置，跳过发送")
             return False
@@ -83,6 +89,7 @@ class EmailSender:
     
     async def send_simple(self, subject: str, content: str, is_html: bool = False) -> bool:
         """发送简单邮件"""
+        self.refresh_config()
         if not self.is_configured():
             return False
         
@@ -113,7 +120,12 @@ class WeChatSender:
     """企业微信发送器"""
     
     def __init__(self):
-        self.webhook_url = settings.distribution.wechat_webhook_url
+        self.refresh_config()
+
+    def refresh_config(self):
+        """每次发送前重新读取 .env，避免网页保存配置后必须重启。"""
+        cfg = DistributionSettings()
+        self.webhook_url = cfg.wechat_webhook_url
     
     def is_configured(self) -> bool:
         """检查是否已配置"""
@@ -129,6 +141,7 @@ class WeChatSender:
         Returns:
             是否发送成功
         """
+        self.refresh_config()
         if not self.is_configured():
             logger.warning("企业微信未配置，跳过发送")
             return False
@@ -158,6 +171,7 @@ class WeChatSender:
         Returns:
             是否发送成功
         """
+        self.refresh_config()
         if not self.is_configured():
             return False
         
@@ -184,6 +198,7 @@ class WeChatSender:
         Returns:
             是否发送成功
         """
+        self.refresh_config()
         if not self.is_configured():
             return False
         
@@ -303,17 +318,25 @@ class Distributor:
             'wechat': False
         }
         
+        cfg = DistributionSettings()
+
         # 邮件发送
-        if settings.distribution.enable_email and self.email_sender.is_configured():
+        self.email_sender.refresh_config()
+        if cfg.enable_email and self.email_sender.is_configured():
             results['email'] = await self.email_sender.send_report(report)
             if results['email']:
                 report.sent_email = True
+        elif cfg.enable_email:
+            logger.warning("邮件发送已启用，但SMTP配置不完整，跳过发送")
         
         # 企业微信发送（发送摘要）
-        if settings.distribution.enable_wechat and self.wechat_sender.is_configured():
+        self.wechat_sender.refresh_config()
+        if cfg.enable_wechat and self.wechat_sender.is_configured():
             results['wechat'] = await self.wechat_sender.send_report_summary(report)
             if results['wechat']:
                 report.sent_wechat = True
+        elif cfg.enable_wechat:
+            logger.warning("企业微信发送已启用，但Webhook URL未配置，跳过发送")
         
         # 更新发送状态
         if results['email'] or results['wechat']:

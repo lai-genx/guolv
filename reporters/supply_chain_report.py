@@ -141,6 +141,104 @@ class SupplyChainReport:
 
         return groups
 
+    def _build_weekly_summary(self, items: List[IntelItem], stats: Dict[str, Any]) -> Dict[str, Any]:
+        """生成不依赖额外LLM调用的本期总结。"""
+        important_items = sorted(
+            [item for item in items if item.importance >= 4],
+            key=lambda item: (item.importance, item.created_at),
+            reverse=True,
+        )
+
+        company_activity = defaultdict(int)
+        chain_activity = defaultdict(int)
+        category_activity = defaultdict(int)
+        source_activity = defaultdict(int)
+
+        for item in items:
+            for company in item.companies_mentioned or []:
+                company_activity[company] += 1
+            if item.supply_chain:
+                chain_activity[item.supply_chain] += 1
+            if item.category:
+                category_activity[item.category.value] += 1
+            if item.source_type:
+                source_activity[item.source_type] += 1
+
+        top_companies = sorted(company_activity.items(), key=lambda x: x[1], reverse=True)[:5]
+        top_chains = sorted(chain_activity.items(), key=lambda x: x[1], reverse=True)[:3]
+        top_categories = sorted(category_activity.items(), key=lambda x: x[1], reverse=True)[:3]
+        top_sources = sorted(source_activity.items(), key=lambda x: x[1], reverse=True)
+        highlights = important_items[:5]
+
+        return {
+            "total": len(items),
+            "important_count": len(important_items),
+            "top_companies": top_companies,
+            "top_chains": top_chains,
+            "top_categories": top_categories,
+            "top_sources": top_sources,
+            "highlights": highlights,
+        }
+
+    def _summary_markdown(self, items: List[IntelItem], stats: Dict[str, Any]) -> str:
+        summary = self._build_weekly_summary(items, stats)
+        md = "## 本期总结\n\n"
+        md += (
+            f"本期共纳入 **{summary['total']}** 条情报，其中重要性4分及以上 "
+            f"**{summary['important_count']}** 条。"
+        )
+
+        if summary["top_chains"]:
+            chains = "、".join(f"{name}({count}条)" for name, count in summary["top_chains"])
+            md += f" 活跃产业链主要集中在：{chains}。"
+        if summary["top_categories"]:
+            categories = "、".join(f"{name}({count}条)" for name, count in summary["top_categories"])
+            md += f" 主要事件类型为：{categories}。"
+        md += "\n\n"
+
+        if summary["top_companies"]:
+            companies = "、".join(f"{name}({count}条)" for name, count in summary["top_companies"])
+            md += f"- **重点企业**：{companies}\n"
+        if summary["top_sources"]:
+            sources = "、".join(f"{name}({count}条)" for name, count in summary["top_sources"])
+            md += f"- **来源结构**：{sources}\n"
+        if summary["highlights"]:
+            md += "- **优先关注**：\n"
+            for item in summary["highlights"]:
+                insight = item.one_line_insight or item.summary_zh[:120]
+                md += f"  - {item.title}：{insight}\n"
+        md += "\n---\n\n"
+        return md
+
+    def _summary_html(self, items: List[IntelItem], stats: Dict[str, Any]) -> str:
+        summary = self._build_weekly_summary(items, stats)
+        html = '<h2>本期总结</h2>'
+        html += '<div class="highlight">'
+        html += (
+            f'<p>本期共纳入 <strong>{summary["total"]}</strong> 条情报，其中重要性4分及以上 '
+            f'<strong>{summary["important_count"]}</strong> 条。</p>'
+        )
+        if summary["top_chains"]:
+            chains = "、".join(f"{name}({count}条)" for name, count in summary["top_chains"])
+            html += f'<p><strong>活跃产业链：</strong>{chains}</p>'
+        if summary["top_categories"]:
+            categories = "、".join(f"{name}({count}条)" for name, count in summary["top_categories"])
+            html += f'<p><strong>主要事件类型：</strong>{categories}</p>'
+        if summary["top_companies"]:
+            companies = "、".join(f"{name}({count}条)" for name, count in summary["top_companies"])
+            html += f'<p><strong>重点企业：</strong>{companies}</p>'
+        if summary["top_sources"]:
+            sources = "、".join(f"{name}({count}条)" for name, count in summary["top_sources"])
+            html += f'<p><strong>来源结构：</strong>{sources}</p>'
+        if summary["highlights"]:
+            html += '<p><strong>优先关注：</strong></p><ul>'
+            for item in summary["highlights"]:
+                insight = item.one_line_insight or item.summary_zh[:120]
+                html += f'<li>{item.title}：{insight}</li>'
+            html += '</ul>'
+        html += '</div>'
+        return html
+
     def generate_supply_chain_markdown(
         self,
         items: List[IntelItem],
@@ -155,6 +253,8 @@ class SupplyChainReport:
 **{date_range}**
 
 ---
+
+{self._summary_markdown(items, stats)}
 
 ## 【本周核心决策洞察】
 
@@ -406,6 +506,8 @@ class SupplyChainReport:
 <body>
     <h1>通信设备产业情报周报 | 第{issue_no}期</h1>
     <p class="date-range">{date_range}</p>
+
+    {self._summary_html(items, stats)}
 
     <h2>【本周核心决策洞察】</h2>
 """

@@ -25,7 +25,7 @@ logger.add(
 )
 
 from config import settings
-from collectors import RSSCollector, WebCollector, SearchCollector, PatentCollector, VviHotCollector
+from collectors import RSSCollector, WebCollector, SearchCollector, PatentCollector
 from collectors.base import RawIntelData
 from processors import IntelAnalyzer, VectorRAG
 from processors.episodic_memory import EpisodicMemory
@@ -44,10 +44,8 @@ class TelecomIntelAgent:
         if settings.collector.enable_web:
             self.collectors.append(WebCollector())
 
-        # 识微商情平台可替代原 Bing 搜索采集；启用后避免重复跑 SearchCollector。
-        if settings.collector.enable_vvihot:
-            self.collectors.append(VviHotCollector())
-        elif settings.collector.enable_search:
+        # 默认使用 Serper/SearchCollector，不再通过 VviHot 平台采集。
+        if settings.collector.enable_search:
             self.collectors.append(SearchCollector())
 
         if settings.collector.enable_patent:

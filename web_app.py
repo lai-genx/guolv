@@ -652,6 +652,24 @@ elif page == "⚙️ 设置":
 
             st.success("邮件配置已保存!")
 
+    if st.button("📨 发送测试邮件"):
+        try:
+            from reporters.distribution import Distributor
+
+            test_message = f"CT产业情报Agent测试邮件\n\n发送时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n如果收到此邮件，说明SMTP配置可用。"
+            result = asyncio.run(
+                Distributor().email_sender.send_simple(
+                    "CT产业情报Agent测试邮件",
+                    test_message
+                )
+            )
+            if result:
+                st.success("测试邮件发送成功，请检查收件箱。")
+            else:
+                st.error("测试邮件发送失败，请检查SMTP服务器、账号、授权码、收件人和开关配置。")
+        except Exception as e:
+            st.error(f"测试邮件发送异常: {e}")
+
     # --- 企微配置 ---
     st.divider()
     st.subheader("💬 企业微信配置")
@@ -681,6 +699,19 @@ elif page == "⚙️ 设置":
 
             st.success("企微配置已保存!")
 
+    if st.button("💬 发送企微测试消息"):
+        try:
+            from reporters.distribution import Distributor
+
+            test_message = f"CT产业情报Agent测试消息\n发送时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n如果收到此消息，说明企业微信Webhook配置可用。"
+            result = asyncio.run(Distributor().wechat_sender.send_text(test_message))
+            if result:
+                st.success("企微测试消息发送成功，请检查企业微信群。")
+            else:
+                st.error("企微测试消息发送失败，请检查Webhook URL是否正确，以及机器人是否仍在群内。")
+        except Exception as e:
+            st.error(f"企微测试发送异常: {e}")
+
     # --- 系统信息 ---
     st.divider()
     st.subheader("ℹ️ 系统信息")
@@ -708,6 +739,7 @@ elif page == "⚙️ 设置":
         "通义千问": env_vars.get("LLM__QWEN_API_KEY", ""),
         "Kimi": env_vars.get("LLM__KIMI_API_KEY", ""),
         "Claude": env_vars.get("LLM__CLAUDE_API_KEY", ""),
+        "Serper": env_vars.get("COLLECTOR__SERPER_API_KEY", ""),
         "Jina Reader": env_vars.get("COLLECTOR__JINA_API_KEY", ""),
     }
     for name, val in api_keys.items():

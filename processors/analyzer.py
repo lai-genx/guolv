@@ -3,6 +3,7 @@ AI分析器模块 - 情报智能分析
 """
 import json
 import re
+import asyncio
 from datetime import datetime
 from typing import Optional, List, Dict, Any, Tuple
 from difflib import SequenceMatcher
@@ -57,7 +58,10 @@ class IntelAnalyzer:
         # 4. 调用LLM分析
         try:
             system_prompt = self._get_analysis_system_prompt()
-            response = await self.llm.analyze(system_prompt, analysis_prompt)
+            response = await asyncio.wait_for(
+                self.llm.analyze(system_prompt, analysis_prompt),
+                timeout=90,
+            )
             
             # 5. 解析分析结果
             analysis_result = self._parse_analysis_response(response)

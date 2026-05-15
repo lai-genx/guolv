@@ -471,28 +471,9 @@ python main.py --collect
 python main.py --report
 ```
 
-## 2026-05-14 识微商情/VviHot采集器接入
+## 2026-05-15 Serper 搜索采集替代
 
-### 新增能力
-
-- 新增 `collectors/vvihot_collector.py`。
-- 支持登录识微商情平台并采集已配置监测主题下的文章。
-- 平台文章会统一转换为 `RawIntelData`，复用现有 LLM 分析、去重、入库和周报流程。
-- 启用 `COLLECTOR__ENABLE_VVIHOT=true` 后，主流程会使用 `VviHotCollector` 替代原来的 `SearchCollector`，避免重复跑 Bing 搜索。
-
-### 新增配置
-
-```env
-COLLECTOR__ENABLE_VVIHOT=true
-COLLECTOR__VVIHOT_URL=https://zreywc.vvihot.com/swsq/
-COLLECTOR__VVIHOT_USERNAME=
-COLLECTOR__VVIHOT_PASSWORD=
-COLLECTOR__VVIHOT_HEADLESS=true
-COLLECTOR__VVIHOT_WAIT_SECONDS=12
-COLLECTOR__VVIHOT_MAX_ITEMS=80
-COLLECTOR__VVIHOT_TOPIC_NAMES=
-```
-
-### 文档
-
-- 新增 `docs/VVIHOT_COLLECTOR_INTEGRATION.md`，说明平台字段映射、替代范围、主题组合建议和使用注意事项。
+- 已移除 VviHot 平台采集器，主流程默认使用 Serper Search、RSS、官网 Web 和专利线索采集。
+- `SearchCollector` 优先调用 Serper `news/search` 接口，避免继续依赖 Bing HTML 页面解析。
+- `PatentCollector` 优先通过 Serper 查询 Google Patents / Espacenet 公开专利线索。
+- 周报生成会排除历史 VviHot 来源数据，避免新旧采集方案混入同一份报告。

@@ -44,6 +44,7 @@ class ReportGenerator:
         
         # 3. 获取情报数据
         items = self.db.get_items_for_report(days=days)
+        items = [item for item in items if item.source_type != "vvihot"]
         
         if not items:
             logger.warning("本周没有符合条件的情报数据")

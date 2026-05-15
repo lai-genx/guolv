@@ -34,6 +34,8 @@ gh.zip
 _tools/
 _temp/
 output/
+telecom-equipment-intel-package.zip
+_package_temp/
 
 # OS/editor
 .DS_Store

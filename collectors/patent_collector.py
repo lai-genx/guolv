@@ -25,6 +25,7 @@ class PatentCollector(BaseCollector):
 
     def __init__(self):
         super().__init__("patent")
+        self.serper_calls = 0
 
     async def collect(self, **kwargs) -> CollectorResult:
         all_items: List[RawIntelData] = []
@@ -60,6 +61,7 @@ class PatentCollector(BaseCollector):
             item for item in unique_items
             if contains_keywords(item.title + " " + item.summary)
         ]
+        logger.info(f"PatentCollector本轮Serper调用次数: {self.serper_calls}")
 
         return CollectorResult(
             items=filtered_items,
@@ -85,6 +87,11 @@ class PatentCollector(BaseCollector):
         return base_queries + company_queries
 
     async def _search_patents(self, query: str, max_results: int) -> List[RawIntelData]:
+        if settings.collector.serper_api_key:
+            serper_items = await self._search_serper_patents(query, max_results)
+            if serper_items:
+                return serper_items
+
         if settings.collector.jina_api_key:
             jina_items = await self._search_jina_patents(query, max_results)
             if jina_items:
@@ -135,6 +142,57 @@ class PatentCollector(BaseCollector):
                 pub_date=datetime.now(),
                 content=summary,
                 summary=summary[:500]
+            ))
+
+        return items
+
+    async def _search_serper_patents(self, query: str, max_results: int) -> List[RawIntelData]:
+        """使用 Serper 搜索公开专利页面。"""
+        url = "https://google.serper.dev/search"
+        headers = {
+            "X-API-KEY": settings.collector.serper_api_key,
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "q": query,
+            "num": max_results,
+            "gl": "us",
+            "hl": "zh-cn",
+        }
+
+        try:
+            self.serper_calls += 1
+            response = await self.client.post(url, headers=headers, json=payload, timeout=25)
+            response.raise_for_status()
+            data = response.json()
+        except Exception as e:
+            logger.warning(f"Serper专利搜索失败 '{query}': {e}")
+            return []
+
+        items: List[RawIntelData] = []
+        seen_urls = set()
+        for row in data.get("organic") or []:
+            if len(items) >= max_results:
+                break
+            title = (row.get("title") or "").strip()
+            url_value = (row.get("link") or "").strip()
+            if not title or not url_value:
+                continue
+            if "patents.google.com" not in url_value and "espacenet" not in url_value:
+                continue
+            if url_value in seen_urls:
+                continue
+
+            seen_urls.add(url_value)
+            summary = (row.get("snippet") or "").strip()
+            items.append(RawIntelData(
+                title=title,
+                url=url_value,
+                source=row.get("source") or "Serper专利搜索",
+                source_type="patent",
+                pub_date=self._parse_patent_date(row.get("date") or ""),
+                content=summary,
+                summary=summary[:500],
             ))
 
         return items
