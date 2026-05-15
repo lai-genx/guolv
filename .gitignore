@@ -21,6 +21,7 @@ data/*.sqlite
 data/*.sqlite3
 data/*.log
 data/reports/
+data/run_logs/
 data/plans/
 knowledge_base/chroma_db/
 knowledge_base/episodic_memory/
