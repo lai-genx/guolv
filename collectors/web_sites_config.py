@@ -24,12 +24,12 @@ CSS选择器策略:
 DEFAULT_SITES = [
     {
         "name": "思科",
-        "url": "https://www.cisco.com/c/en/us/news/",
+        "url": "https://newsroom.cisco.com/",
         "list_selector": "article, .news-item, .news-article, [role='article'], .press-release, .blog-post, .post-item, .content-item, .news-list, .news-container, .article-list, .articles, .posts, .stories, .item, .entry, .card, li[class*='news'], div[class*='article'], section[class*='news']",
         "title_selector": "h1, h2, h3, .title, .headline, .news-title, [class*='title'], .heading, .post-title, a[href]",
         "link_selector": "a[href*='news'], a[href*='press'], a[href*='article'], a[href*='blog'], a[href]",
         "date_selector": "time, .date, .publish-date, .posted-on, [class*='date'], .meta-date, .timestamp, [data-date]",
-        "base_url": "https://www.cisco.com/c/en/us",
+        "base_url": "https://newsroom.cisco.com",
         "priority": "P0",
         "use_jina_only": True
     },

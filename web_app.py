@@ -51,6 +51,7 @@ from contextlib import contextmanager
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
+from config import settings
 
 # ============================================================
 # 配置
@@ -417,7 +418,39 @@ elif page == "🚀 采集中心":
                 log_placeholder.code("\n".join(logs))
 
                 try:
-                    result = loop.run_until_complete(collector.collect())
+                    collector_timeout = 180
+                    if collector.source_type == "web":
+                        max_sites = settings.collector.web_max_sites
+                        site_count = len(getattr(collector, "sites", []))
+                        if max_sites and max_sites > 0:
+                            site_count = min(site_count, max_sites)
+                        collector_timeout = max(
+                            180,
+                            site_count * (settings.collector.web_per_site_timeout + 5) + 120
+                        )
+                        add_log(
+                            f"     web将扫描 {site_count} 个官网，单站最长 {settings.collector.web_per_site_timeout} 秒，预计可能需要较长时间"
+                        )
+                        log_placeholder.code("\n".join(logs))
+                    elif collector.source_type == "patent":
+                        try:
+                            query_count = len(collector._build_patent_queries())
+                        except Exception:
+                            query_count = settings.collector.patent_max_queries or 18
+                        if settings.collector.patent_max_queries and settings.collector.patent_max_queries > 0:
+                            query_count = min(query_count, settings.collector.patent_max_queries)
+                        collector_timeout = max(
+                            180,
+                            query_count * (settings.collector.patent_per_query_timeout + 3) + 120
+                        )
+                        add_log(
+                            f"     patent将执行 {query_count} 个查询，单查询最长 {settings.collector.patent_per_query_timeout} 秒"
+                        )
+                        log_placeholder.code("\n".join(logs))
+
+                    result = loop.run_until_complete(
+                        asyncio.wait_for(collector.collect(), timeout=collector_timeout)
+                    )
 
                     if result.success:
                         all_raw_items.extend(result.items)
@@ -480,8 +513,19 @@ elif page == "🚀 采集中心":
                     add_log(f"  ❌ 分析失败: {e}")
 
             add_log(f"✅ AI分析完成: 成功 {len(analyzed_items)} 条")
-            progress_bar.progress(90, text="生成周报...")
             log_placeholder.code("\n".join(logs))
+
+            if not analyzed_items:
+                add_log("❌ AI分析成功 0 条，已停止生成周报")
+                add_log("   请先在 .env 里配置至少一个 LLM API Key；否则系统只能采集原文，不能完成分类、价值判断和入库")
+                progress_bar.progress(100, text="AI分析失败，已停止")
+                log_placeholder.code("\n".join(logs))
+                st.session_state.collect_result = {
+                    "error": "AI分析成功 0 条，未生成新周报。请检查 LLM API Key 配置。"
+                }
+                st.stop()
+
+            progress_bar.progress(90, text="生成周报...")
 
             # Step 4: 生成周报
             add_log("=" * 40)

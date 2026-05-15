@@ -4,6 +4,7 @@
 该采集器通过已授权的平台账号读取现有监测主题下的文章列表，并统一转换为
 RawIntelData，交给项目既有的去重、LLM分析、入库和周报流程处理。
 """
+import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Set
 from urllib.parse import parse_qs, urlparse
@@ -13,6 +14,55 @@ from loguru import logger
 
 from .base import BaseCollector, CollectorResult, RawIntelData, contains_keywords
 from config import settings
+
+
+MANAGED_TOPIC_DEFINITIONS = [
+    {
+        "name": "CT-无线接入与标准",
+        "terms": ["5G", "6G", "5G-A", "5G Advanced", "Open RAN", "O-RAN", "vRAN", "RAN", "基站", "小基站", "射频", "天线", "3GPP", "ITU-R"],
+        "keyword": (
+            '(5G || 6G || "5G-A" || "5G Advanced" || "Open RAN" || "O-RAN" || vRAN || RAN || '
+            '基站 || 小基站 || 射频 || 天线 || 3GPP || "ITU-R") && '
+            "(发布 || 合作 || 中标 || 商用 || 部署 || 测试 || 研发 || 标准 || 专利 || 融资 || 收购)"
+        ),
+    },
+    {
+        "name": "CT-光通信",
+        "terms": ["光通信", "光模块", "光芯片", "硅光", "CPO", "LPO", "OTN", "WDM", "DWDM", "相干光", "800G", "1.6T"],
+        "keyword": (
+            "(光通信 || 光模块 || 光芯片 || 硅光 || CPO || LPO || OTN || WDM || DWDM || "
+            "相干光 || 800G || 1.6T) && "
+            "(发布 || 量产 || 中标 || 合作 || 订单 || 扩产 || 研发 || 专利 || 融资 || 收购)"
+        ),
+    },
+    {
+        "name": "CT-核心网与承载",
+        "terms": ["核心网", "5G Core", "UPF", "AMF", "SMF", "MEC", "网络切片", "云原生网络", "边缘计算", "传输网", "承载网", "IP承载", "PTN", "SPN", "路由器", "交换机", "DCI"],
+        "keyword": (
+            '(核心网 || "5G Core" || UPF || AMF || SMF || MEC || 网络切片 || 云原生网络 || '
+            "边缘计算 || 传输网 || 承载网 || IP承载 || PTN || SPN || 路由器 || 交换机 || DCI) && "
+            "(发布 || 部署 || 商用 || 合作 || 测试 || 升级 || 运营商 || 中标 || 扩容)"
+        ),
+    },
+    {
+        "name": "CT-通信芯片半导体",
+        "terms": ["基带芯片", "射频芯片", "光芯片", "DSP", "FPGA", "SoC", "PA", "LNA", "滤波器", "通信芯片", "国产芯片"],
+        "keyword": (
+            "(基带芯片 || 射频芯片 || 光芯片 || DSP || FPGA || SoC || PA || LNA || 滤波器 || "
+            "通信芯片 || 国产芯片) && "
+            "(发布 || 量产 || 流片 || 订单 || 合作 || 融资 || 收购 || 专利 || 认证)"
+        ),
+    },
+    {
+        "name": "CT-物联网终端",
+        "terms": ["物联网", "IoT", "模组", "5G模组", "CPE", "车联网", "V2X", "NTN", "卫星通信", "RedCap", "工业互联网"],
+        "keyword": (
+            "(物联网 || IoT || 模组 || 5G模组 || CPE || 车联网 || V2X || NTN || 卫星通信 || "
+            "RedCap || 工业互联网) && "
+            "(发布 || 商用 || 合作 || 认证 || 中标 || 出货 || 量产 || 部署)"
+        ),
+    },
+]
 
 
 class VviHotCollector(BaseCollector):
@@ -27,6 +77,16 @@ class VviHotCollector(BaseCollector):
         self.wait_seconds = settings.collector.vvihot_wait_seconds
         self.max_items = settings.collector.vvihot_max_items
         self.topic_names = self._parse_topic_names(settings.collector.vvihot_topic_names)
+        self.manage_topics = settings.collector.vvihot_manage_topics
+        self.delete_unmanaged_topics = settings.collector.vvihot_delete_unmanaged_topics
+        self.managed_topic_prefix = settings.collector.vvihot_managed_topic_prefix
+        self.managed_topic_definitions = [
+            topic
+            for topic in MANAGED_TOPIC_DEFINITIONS
+            if topic["name"].startswith(self.managed_topic_prefix)
+        ]
+        if self.manage_topics and not self.topic_names:
+            self.topic_names = {topic["name"] for topic in self.managed_topic_definitions}
 
     async def collect(self, **kwargs) -> CollectorResult:
         """从识微商情平台采集已配置监测主题下的文章"""
@@ -96,9 +156,15 @@ class VviHotCollector(BaseCollector):
 
                 await page.goto(self.platform_url, wait_until="networkidle", timeout=60000)
                 await self._login_if_needed(page)
+                await self._wait_until_authenticated(page)
 
-                # 先主动读取主题列表，随后触发一次页面监测刷新。
+                # 先主动读取主题列表；如开启托管模式，则把平台主题整理成通信领域主题池。
                 topics_payload = await self._fetch_topics(page)
+                if self.manage_topics:
+                    topics_payload = await self._ensure_managed_topics(page, topics_payload)
+                    await page.reload(wait_until="networkidle", timeout=60000)
+                    topics_payload = await self._fetch_topics(page)
+
                 if topics_payload:
                     topic_lookup.update(self._extract_topic_lookup(topics_payload))
 
@@ -151,6 +217,15 @@ class VviHotCollector(BaseCollector):
 
         await page.wait_for_load_state("networkidle", timeout=60000)
 
+    async def _wait_until_authenticated(self, page) -> None:
+        """等待登录态真正可用于平台接口。"""
+        for _ in range(20):
+            payload = await self._fetch_topics(page)
+            if payload and payload.get("success"):
+                return
+            await page.wait_for_timeout(1000)
+        raise RuntimeError("VviHot登录后仍无法读取主题接口")
+
     async def _fetch_topics(self, page) -> Optional[Dict[str, Any]]:
         """直接读取平台主题列表，避免只依赖前端初始化事件"""
         try:
@@ -159,12 +234,115 @@ class VviHotCollector(BaseCollector):
                     const r = await fetch('/swsq/topic/pagingByType?topicType=KEYWORDS', {
                         credentials: 'include'
                     });
-                    return await r.json();
+                    const text = await r.text();
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        return {success: false, msg: text.slice(0, 200)};
+                    }
                 }"""
             )
         except Exception as e:
             logger.debug(f"读取VviHot主题列表失败: {e}")
             return None
+
+    async def _ensure_managed_topics(self, page, topics_payload: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        """确保平台上保留的是项目托管的通信领域主题。"""
+        topics_payload = topics_payload or await self._fetch_topics(page)
+        topics = self._extract_topics(topics_payload)
+
+        if self.delete_unmanaged_topics:
+            for topic in topics:
+                if not self._is_deletable_topic(topic):
+                    continue
+                if self._is_managed_topic(topic):
+                    continue
+                if await self._remove_topic(page, topic):
+                    logger.info(f"VviHot已删除非托管主题: {self._topic_label(topic)}")
+
+            topics_payload = await self._fetch_topics(page)
+            topics = self._extract_topics(topics_payload)
+
+        for definition in self.managed_topic_definitions:
+            if any(self._topic_matches_definition(topic, definition) for topic in topics):
+                continue
+
+            added = await self._add_topic(page, definition)
+            if added:
+                logger.info(f"VviHot已创建托管主题: {definition['name']}")
+                continue
+
+            # 账号主题数量有限时，优先清理剩余非托管主题后重试一次。
+            if self.delete_unmanaged_topics:
+                refreshed = self._extract_topics(await self._fetch_topics(page))
+                removable = next(
+                    (
+                        topic
+                        for topic in refreshed
+                        if self._is_deletable_topic(topic) and not self._is_managed_topic(topic)
+                    ),
+                    None,
+                )
+                if removable and await self._remove_topic(page, removable):
+                    if await self._add_topic(page, definition):
+                        logger.info(f"VviHot清理额度后已创建托管主题: {definition['name']}")
+
+        return await self._fetch_topics(page)
+
+    async def _add_topic(self, page, definition: Dict[str, str]) -> bool:
+        """通过识微商情接口创建关键词主题。"""
+        try:
+            result = await page.evaluate(
+                """async ({name, keyword}) => {
+                    const body = new URLSearchParams();
+                    body.set('topic[keyword]', keyword);
+                    body.set('topic[name]', name);
+                    body.set('topic[topicType]', 'KEYWORDS');
+                    body.set('topic[scope]', 'JN');
+                    body.set('topic[mediaType]', 'ALL');
+                    const r = await fetch('/swsq/topic/add', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+                        body: body.toString()
+                    });
+                    return await r.json();
+                }""",
+                definition,
+            )
+            if result and result.get("success"):
+                return True
+            logger.warning(f"VviHot创建主题失败: {definition['name']} - {result}")
+            return False
+        except Exception as e:
+            logger.warning(f"VviHot创建主题异常: {definition['name']} - {e}")
+            return False
+
+    async def _remove_topic(self, page, topic: Dict[str, Any]) -> bool:
+        """通过识微商情接口删除关键词主题。"""
+        topic_id = topic.get("topicId")
+        if not topic_id:
+            return False
+
+        try:
+            result = await page.evaluate(
+                """async (topicId) => {
+                    const body = new URLSearchParams();
+                    body.set('topicId', topicId);
+                    const r = await fetch('/swsq/topic/remove', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'},
+                        body: body.toString()
+                    });
+                    return await r.json();
+                }""",
+                topic_id,
+            )
+            return bool(result and result.get("success"))
+        except Exception as e:
+            logger.warning(f"VviHot删除主题异常: {topic.get('name') or topic_id} - {e}")
+            return False
 
     async def _trigger_topic_refresh(self, page, topic_lookup: Dict[str, str]) -> None:
         """
@@ -192,12 +370,68 @@ class VviHotCollector(BaseCollector):
 
     def _extract_topic_lookup(self, payload: Dict[str, Any]) -> Dict[str, str]:
         lookup = {}
-        for topic in payload.get("data") or []:
+        for topic in self._extract_topics(payload):
             topic_id = topic.get("topicId")
-            name = topic.get("name") or topic.get("topicDisplay", {}).get("displayName")
+            name = self._topic_label(topic)
             if topic_id and name:
                 lookup[topic_id] = name
         return lookup
+
+    def _extract_topics(self, payload: Optional[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        if not payload or not payload.get("success"):
+            return []
+        topics = payload.get("data") or []
+        return topics if isinstance(topics, list) else []
+
+    def _is_visible_keyword_topic(self, topic: Dict[str, Any]) -> bool:
+        return topic.get("topicType") == "KEYWORDS" and topic.get("status") == "SHOW"
+
+    def _is_deletable_topic(self, topic: Dict[str, Any]) -> bool:
+        topic_id = topic.get("topicId", "")
+        if topic_id in {"REPORT_DATA", "HOT_EVENT"}:
+            return False
+        return self._is_visible_keyword_topic(topic)
+
+    def _is_managed_topic(self, topic: Dict[str, Any]) -> bool:
+        return any(self._topic_matches_definition(topic, definition) for definition in self.managed_topic_definitions)
+
+    def _topic_matches_definition(self, topic: Dict[str, Any], definition: Dict[str, str]) -> bool:
+        name = topic.get("name") or topic.get("topicDisplay", {}).get("displayName") or ""
+        if name == definition["name"]:
+            return True
+        return self._normalize_topic_keyword(topic.get("keywords", "")) == self._normalize_topic_keyword(definition["keyword"])
+
+    def _topic_label(self, topic: Dict[str, Any]) -> str:
+        name = topic.get("name") or topic.get("topicDisplay", {}).get("displayName") or ""
+        if name:
+            return name
+
+        keyword = topic.get("keywords") or ""
+        normalized = self._normalize_topic_keyword(keyword)
+        for definition in self.managed_topic_definitions:
+            if normalized == self._normalize_topic_keyword(definition["keyword"]):
+                return definition["name"]
+        return keyword
+
+    def _normalize_topic_keyword(self, keyword: str) -> str:
+        return "".join(str(keyword or "").split())
+
+    def _passes_managed_topic_filter(self, topic_name: str, text: str) -> bool:
+        definition = next(
+            (definition for definition in self.managed_topic_definitions if definition["name"] == topic_name),
+            None,
+        )
+        if not definition:
+            return True
+
+        lower_text = text.lower()
+        return any(self._term_in_text(term, lower_text) for term in definition.get("terms", []))
+
+    def _term_in_text(self, term: str, lower_text: str) -> bool:
+        lower_term = term.lower()
+        if re.fullmatch(r"[a-z0-9][a-z0-9.+-]{1,8}", lower_term):
+            return re.search(rf"(?<![a-z0-9]){re.escape(lower_term)}(?![a-z0-9])", lower_text) is not None
+        return lower_term in lower_text
 
     def _convert_documents(
         self,
@@ -244,6 +478,10 @@ class VviHotCollector(BaseCollector):
         topic_id = self._extract_topic_id(doc)
         topic_name = doc.get("_vvihot_topic_name") or (topic_lookup.get(topic_id, "") if topic_id else "")
         if self.topic_names and topic_name not in self.topic_names:
+            return None
+
+        searchable_text = f"{title} {content_text}"
+        if self.manage_topics and topic_name and not self._passes_managed_topic_filter(topic_name, searchable_text):
             return None
 
         source = doc.get("websiteName") or doc.get("domain") or "识微商情"

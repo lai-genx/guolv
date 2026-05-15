@@ -191,3 +191,56 @@ COLLECTOR__HTTPS_PROXY=http://proxy:port
   CHANGES_SUMMARY.txt - 本文件
 
 ================================================================================
+
+2026-05-14 17:50 修复记录 - 采集器失败与周报误生成
+================================================================================
+
+问题现象:
+  - web: 成功采集 0/12 个网站，过滤后 0/0 条
+  - patent: 专利线索采集完成，过滤后 0/0 条
+  - AI分析完成: 成功 0 条，但仍生成了第20期、11条情报的周报
+
+根因分析:
+  1. .env 中 LLM__DEEPSEEK_API_KEY、LLM__QWEN_API_KEY、LLM__KIMI_API_KEY、
+     LLM__CLAUDE_API_KEY 当前均为空，导致 AI 分析阶段没有可用模型。
+  2. web 采集器通过 Jina Reader 请求时沿用了通用压缩请求头，返回内容可能是乱码，
+     造成“HTTP 200 成功但解析出 0 条”。
+  3. Cisco 官网新闻入口旧地址返回 404，导致采集到导航页而非新闻页。
+  4. 专利采集原先依赖 Google Patents XHR/Bing 搜索，当前 Google Patents XHR
+     对本机返回 503，Bing 页面也不稳定。
+  5. Web UI 在 AI 分析 0 条时仍继续调用 generate_report，导致从数据库旧数据生成周报，
+     造成“看起来成功，实际没有新情报”的误导。
+
+修复内容:
+  - config.py
+    - 固定从项目根目录读取 .env，避免启动目录变化导致配置读取失败。
+    - .env 编码改为 utf-8-sig，兼容 Windows 写入的 BOM。
+  - web_app.py
+    - 当 AI 分析成功 0 条时，停止生成周报并提示检查 LLM API Key。
+    - 避免继续用历史数据库内容生成新周报。
+  - collectors/web_collector.py
+    - Jina Reader 请求强制 Accept-Encoding: identity，避免乱码内容。
+    - 支持 Markdown 相对链接解析。
+    - 增加通用链接 fallback，并过滤导航、分类、RSS、隐私、登录等非新闻链接。
+    - 对 Jina 返回 404 的页面直接跳过。
+  - collectors/web_sites_config.py
+    - Cisco 新闻入口改为 https://newsroom.cisco.com/。
+  - collectors/patent_collector.py
+    - 增加 Google Patents JSON/CSV 双格式解析。
+    - 增加 Jina Search 专利搜索 fallback，在 Google Patents XHR 503 时仍可采集专利线索。
+
+验证结果:
+  - Python 语法检查通过:
+    config.py、web_app.py、collectors/web_collector.py、
+    collectors/web_sites_config.py、collectors/patent_collector.py
+  - 小范围采集验证:
+    web: 3 个网站中 2 个可采集，不再是 0/0。
+    patent: 2 个查询采集到 6 条专利线索，不再是 0/0。
+  - 当前 AI 分析仍不可用，因为 .env 中 LLM Key 为空；需要重新配置至少一个模型 Key。
+
+剩余注意事项:
+  - Web 官网采集依赖目标网站可访问性，部分国内外官网可能因 DNS、反爬、页面改版失败。
+  - Web 官网采集适合补充企业动态，不建议作为主数据源；识微商情/VviHot 和 RSS 更适合作为主采集源。
+  - 专利采集现在会先尝试 Google Patents XHR，失败后自动使用 Jina Search fallback。
+
+================================================================================

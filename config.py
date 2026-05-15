@@ -6,13 +6,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional, List, Union
 from pathlib import Path
 
+ENV_FILE = Path(__file__).resolve().parent / ".env"
+
 
 class LLMSettings(BaseSettings):
     """LLM配置"""
     model_config = SettingsConfigDict(
         env_prefix="LLM__",
-        env_file=".env",
-        env_file_encoding="utf-8",
+        env_file=str(ENV_FILE),
+        env_file_encoding="utf-8-sig",
         extra="ignore"
     )
     
@@ -36,8 +38,8 @@ class CollectorSettings(BaseSettings):
     """采集器配置"""
     model_config = SettingsConfigDict(
         env_prefix="COLLECTOR__",
-        env_file=".env",
-        env_file_encoding="utf-8",
+        env_file=str(ENV_FILE),
+        env_file_encoding="utf-8-sig",
         extra="ignore"
     )
     
@@ -52,6 +54,12 @@ class CollectorSettings(BaseSettings):
     enable_search: bool = Field(default=True, description="是否启用搜索引擎采集")
     enable_patent: bool = Field(default=True, description="是否启用专利线索采集")
     enable_vvihot: bool = Field(default=False, description="是否启用识微商情/VviHot平台采集")
+    enable_web: bool = Field(default=True, description="是否启用企业官网网页采集")
+    web_max_sites: int = Field(default=0, description="网页采集单轮最多扫描网站数，0表示全部")
+    web_per_site_timeout: int = Field(default=30, description="网页采集单个网站最大等待秒数")
+    patent_max_queries: int = Field(default=0, description="专利采集单轮最多查询数，0表示全部")
+    patent_max_results_per_query: int = Field(default=5, description="专利采集每个查询最多结果数")
+    patent_per_query_timeout: int = Field(default=30, description="专利采集单个查询最大等待秒数")
     vvihot_url: str = Field(default="https://zreywc.vvihot.com/swsq/", description="识微商情平台地址")
     vvihot_username: str = Field(default="", description="识微商情账号")
     vvihot_password: str = Field(default="", description="识微商情密码")
@@ -59,6 +67,9 @@ class CollectorSettings(BaseSettings):
     vvihot_wait_seconds: int = Field(default=12, description="登录后等待平台主题数据加载秒数")
     vvihot_max_items: int = Field(default=80, description="识微商情单轮最多采集条数")
     vvihot_topic_names: str = Field(default="", description="识微商情主题名白名单，逗号分隔，留空表示全部")
+    vvihot_manage_topics: bool = Field(default=False, description="是否自动创建/维护识微商情通信主题")
+    vvihot_delete_unmanaged_topics: bool = Field(default=False, description="主题额度不足时是否删除非托管主题")
+    vvihot_managed_topic_prefix: str = Field(default="CT-", description="托管主题名前缀")
     
     request_timeout: int = Field(default=60, description="请求超时时间(秒)")
     max_retries: int = Field(default=5, description="最大重试次数")
@@ -307,8 +318,8 @@ class DistributionSettings(BaseSettings):
     """分发配置"""
     model_config = SettingsConfigDict(
         env_prefix="DISTRIBUTION__",
-        env_file=".env",
-        env_file_encoding="utf-8",
+        env_file=str(ENV_FILE),
+        env_file_encoding="utf-8-sig",
         extra="ignore"
     )
 
@@ -349,8 +360,8 @@ class ScheduleSettings(BaseSettings):
     """调度配置"""
     model_config = SettingsConfigDict(
         env_prefix="SCHEDULE__",
-        env_file=".env",
-        env_file_encoding="utf-8",
+        env_file=str(ENV_FILE),
+        env_file_encoding="utf-8-sig",
         extra="ignore"
     )
     
@@ -362,8 +373,8 @@ class ScheduleSettings(BaseSettings):
 class Settings(BaseSettings):
     """全局配置"""
     model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
+        env_file=str(ENV_FILE),
+        env_file_encoding="utf-8-sig",
         extra="ignore"
     )
 

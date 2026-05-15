@@ -40,8 +40,9 @@ class TelecomIntelAgent:
     def __init__(self):
         self.collectors = [
             RSSCollector(),
-            WebCollector(),
         ]
+        if settings.collector.enable_web:
+            self.collectors.append(WebCollector())
 
         # 识微商情平台可替代原 Bing 搜索采集；启用后避免重复跑 SearchCollector。
         if settings.collector.enable_vvihot:
